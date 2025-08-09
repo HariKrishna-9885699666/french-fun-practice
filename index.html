@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>French Fun Practice</title>
+  <script src="https://unpkg.com/htmx.org@1.9.6"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: linear-gradient(135deg, #e0f7fa, #f8bbd0);
+      min-height: 100vh;
+    }
+    h1, h2, h3 {
+       font-family: 'Comic Neue', cursive;
+    }
+    .slide-enter {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+    .slide-enter-active {
+      transform: translateX(0);
+      opacity: 1;
+      transition: all 0.5s ease-out;
+    }
+    .slide-leave {
+      position: absolute;
+      width: 100%;
+      transform: translateX(0);
+      opacity: 1;
+    }
+    .slide-leave-active {
+      transform: translateX(-100%);
+      opacity: 0;
+      transition: all 0.5s ease-out;
+    }
+    .correct {
+      background-color: #c8e6c9;
+      border-color: #4caf50;
+    }
+    .incorrect {
+      background-color: #ffcdd2;
+      border-color: #f44336;
+    }
+    /* Floating Action Button (FAB) */
+    .fab {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 50px;
+      height: 50px;
+      background: linear-gradient(135deg, #2196f3, #21cbf3);
+      color: white;
+      border-radius: 50%;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border: none;
+      font-size: 1.5rem;
+    }
+    .fab:hover {
+      transform: scale(1.1) rotate(10deg);
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.25);
+    }
+    .fab:active {
+      transform: scale(0.95);
+    }
+    .card {
+        background-color: #ffffff;
+        border-radius: 20px;
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+    }
+    .progress-container {
+        background-color: #eceff1;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+    .progress-bar {
+        background: linear-gradient(to right, #4caf50, #8bc34a);
+        height: 100%;
+        border-radius: 10px;
+        transition: width 0.5s ease-in-out;
+    }
+    .badge {
+        font-family: 'Comic Neue', cursive;
+        font-weight: bold;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+    }
+    .answer-option {
+        border-radius: 15px;
+        transition: all 0.2s ease;
+        border: 2px solid #e0e0e0;
+    }
+    .answer-option:hover {
+        background-color: #f5f5f5;
+        border-color: #bdbdbd;
+    }
+    input[type="text"], select {
+        border-radius: 12px;
+        border: 2px solid #e0e0e0;
+        padding: 0.75rem;
+        transition: border-color 0.3s ease;
+    }
+    input[type="text"]:focus, select:focus {
+        outline: none;
+        border-color: #2196f3;
+        box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.2);
+    }
+    .btn-primary {
+        background: linear-gradient(135deg, #2196f3, #21cbf3);
+        border: none;
+        border-radius: 12px;
+        padding: 0.75rem 1.5rem;
+        font-weight: bold;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 6px rgba(33, 150, 243, 0.3);
+    }
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #1e88e5, #0cb3e8);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 8px rgba(33, 150, 243, 0.4);
+    }
+    .btn-primary:active {
+        transform: translateY(0);
+        box-shadow: 0 2px 4px rgba(33, 150, 243, 0.3);
+    }
+    .btn-secondary {
+        background-color: #ffffff;
+        color: #2196f3;
+        border: 2px solid #2196f3;
+        border-radius: 12px;
+        padding: 0.75rem 1.5rem;
+        font-weight: bold;
+        transition: all 0.3s ease;
+    }
+    .btn-secondary:hover {
+        background-color: #e3f2fd;
+        transform: translateY(-2px);
+    }
+    .btn-secondary:active {
+        transform: translateY(0);
+    }
+    /* New styles for small nav buttons */
+    .nav-btn {
+        background-color: #ffffff;
+        color: #2196f3;
+        border: 2px solid #2196f3;
+        border-radius: 10px; /* Slightly less rounded */
+        padding: 0.5rem 1rem; /* Smaller padding */
+        font-weight: bold;
+        transition: all 0.2s ease; /* Faster transition */
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Smaller shadow */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem; /* Space between icon and text */
+    }
+    .nav-btn:hover {
+        background-color: #e3f2fd;
+        transform: translateY(-1px); /* Smaller lift */
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+    }
+    .nav-btn:active {
+        transform: translateY(0);
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    }
+    .nav-btn:disabled {
+        background-color: #f5f5f5;
+        color: #9e9e9e;
+        border-color: #e0e0e0;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+    }
+    .grid-letter {
+        background-color: #ffffff;
+        border: 1px solid #bdbdbd;
+        border-radius: 8px;
+        transition: background-color 0.2s ease;
+    }
+    .grid-letter:hover {
+        background-color: #e3f2fd;
+    }
+    .btn-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      margin-top: 1rem;
+    }
+    @media (min-width: 640px) {
+      .btn-group {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .btn-group .w-full {
+        width: auto;
+      }
+    }
+    /* Style for results table */
+    .results-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 1rem;
+        border-radius: 10px; /* Rounded corners for table */
+        overflow: hidden; /* Ensures rounded corners are applied */
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    }
+
+    .results-table th,
+    .results-table td {
+        border: 1px solid #e0e0e0;
+        padding: 0.75rem;
+        text-align: left;
+    }
+
+    .results-table th {
+        background-color: #bbdefb; /* Light blue header */
+        font-weight: bold;
+        color: #1976d2; /* Darker blue text */
+    }
+
+    .results-table tr:nth-child(even) {
+        background-color: #f5f5f5; /* Zebra striping */
+    }
+
+    .results-table tr:hover {
+        background-color: #e3f2fd; /* Hover effect */
+    }
+
+    .user-answer.correct-answer {
+        color: #2e7d32; /* Dark green */
+        font-weight: bold;
+    }
+
+    .user-answer.incorrect-answer {
+        color: #c62828; /* Dark red */
+        font-weight: bold;
+    }
+
+    .correct-answer-highlight {
+        color: #2e7d32; /* Dark green */
+        font-weight: bold;
+    }
+  </style>
+</head>
+<body class="py-8 px-4 sm:px-6 lg:px-8">
+
+  <button id="home-fab" class="fab" title="Go Home">
+    🏠
+  </button>
+
+  <div class="max-w-md mx-auto card">
+
+    <div id="home-page">
+      <div class="bg-gradient-to-r from-blue-400 to-purple-400 px-6 py-8 text-center text-white">
+        <h1 class="text-3xl font-bold mb-2">🇫🇷 French Fun Practice</h1>
+        <p class="text-blue-100">Let's learn French together!</p>
+      </div>
+      <div class="p-6 space-y-4">
+        <button id="mcq-btn" class="w-full btn-primary text-white">
+          🧠 Multiple Choice
+        </button>
+        <button id="fill-blanks-btn" class="w-full btn-primary text-white">
+          ✍️ Fill in the Blanks
+        </button>
+        <button id="translation-btn" class="w-full btn-primary text-white">
+          🌍 Translation
+        </button>
+        <button id="situation-btn" class="w-full btn-primary text-white">
+          💬 Situational Response
+        </button>
+        <button id="true-false-btn" class="w-full btn-primary text-white">
+          ✔️ True or False
+        </button>
+        <button id="matching-btn" class="w-full btn-primary text-white">
+          🔗 Matching
+        </button>
+        <button id="grid-btn" class="w-full btn-primary text-white">
+          🔍 Word Search
+        </button>
+
+        <div class="pt-4 border-t border-gray-200">
+          <button id="start-over-home-btn" class="w-full btn-secondary">
+            🎲 Mix It Up!
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div id="question-container" class="hidden flex flex-col min-h-[500px]">
+      <div class="px-6 py-4 bg-blue-50 border-b border-blue-100">
+        <div class="flex justify-between text-sm text-blue-800 mb-2">
+          <span>Question <span id="current">1</span>/<span id="total">20</span></span>
+          <span><span id="score">0</span> ✅</span>
+        </div>
+        <div class="progress-container h-3">
+          <div id="progress-bar" class="progress-bar" style="width: 5%"></div>
+        </div>
+      </div>
+
+      <div id="question-area" class="p-6 flex-grow">
+      </div>
+
+      <!-- Updated Navigation Buttons -->
+      <div class="px-6 py-5 bg-gray-50 mt-auto">
+        <div class="flex justify-between items-center">
+            <button id="prev-btn" class="nav-btn hidden" disabled>
+                ← Prev
+            </button>
+            <div></div> <!-- Spacer -->
+            <button id="next-btn" class="nav-btn">
+                Next →
+            </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Updated Results Screen -->
+    <div id="results-screen" class="hidden p-6 flex flex-col min-h-[500px]">
+        <div class="flex-grow">
+            <div class="text-center mb-6">
+                <div class="w-20 h-20 mx-auto bg-gradient-to-r from-green-400 to-blue-400 rounded-full flex items-center justify-center text-white text-3xl font-bold mb-4 shadow-lg">
+                    🌟
+                </div>
+                <h2 class="text-2xl font-bold text-gray-800 mb-2">Practice Complete!</h2>
+                <p class="text-5xl font-bold text-blue-600 my-4" id="final-score">0/20</p>
+                <p class="text-gray-700 mb-6 text-lg" id="result-message">Great job! Keep practicing.</p>
+            </div>
+
+            <div class="mt-6">
+                <h3 class="text-xl font-semibold text-gray-800 mb-3">Your Answers</h3>
+                <div id="results-table-container" class="overflow-x-auto"> <!-- For horizontal scroll on small screens -->
+                    <!-- Results table will be inserted here by JS -->
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-6 pt-4 border-t border-gray-200">
+            <button id="restart-btn" class="w-full btn-primary text-white">
+                🔄 Try Again
+            </button>
+        </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const allQuestions = [
+        { id: 1, type: "mcq", question: "Which greeting is used in formal situations?", options: ["Salut", "Bonjour", "Ça va"], answer: "Bonjour" },
+        { id: 2, type: "mcq", question: "\"Au revoir\" means:", options: ["Hello", "Goodbye", "Thank you"], answer: "Goodbye" },
+        { id: 3, type: "mcq", question: "The polite way to say \"Excuse me\" is:", options: ["Merci", "Excusez-moi", "De rien"], answer: "Excusez-moi" },
+        { id: 4, type: "mcq", question: "\"À bientôt\" means:", options: ["See you soon", "Good morning", "Good luck"], answer: "See you soon" },
+        { id: 5, type: "mcq", question: "Which is an informal greeting?", options: ["Bonjour Monsieur", "Salut Anne!", "Bonne chance"], answer: "Salut Anne!" },
+
+        { id: 6, type: "fill", question: "Complete: \"Bonjour ___\" (formal address for a man)", answer: "Monsieur" },
+        { id: 7, type: "fill", question: "\"Merci ___\" means \"Thank you very much\"", answer: "beaucoup" },
+        { id: 8, type: "fill", question: "\"___ chance!\" means \"Good luck!\"", answer: "Bonne" },
+        { id: 9, type: "fill", question: "\"À ___\" means \"See you tomorrow\"", answer: "demain" },
+        { id: 10, type: "fill", question: "\"___, s'il vous plaît\" means \"Come in, please\"", answer: "Entrez" },
+
+        { id: 11, type: "translate", question: "Translate to French: \"Hello Madam\"", answer: "Bonjour Madame" },
+        { id: 12, type: "translate", question: "Translate to English: \"Enchanté!\"", answer: "Nice to meet you" },
+        { id: 13, type: "translate", question: "Translate to French: \"You're welcome\"", answer: "De rien" },
+        { id: 14, type: "translate", question: "Translate to English: \"Désolé!\"", answer: "Sorry" },
+        { id: 15, type: "translate", question: "Translate to French: \"Hi François!\"", answer: "Salut François!" },
+
+        { id: 16, type: "situation", question: "You meet your teacher in the morning. What do you say?", answer: "Bonjour Madame" },
+        { id: 17, type: "situation", question: "Someone gives you a gift. How do you respond?", answer: "Merci" },
+        { id: 18, type: "situation", question: "You accidentally bump into someone. What do you say?", answer: "Excusez-moi" },
+        { id: 19, type: "situation", question: "You're leaving a friend's house. What do you say?", answer: "Au revoir" },
+        { id: 20, type: "situation", question: "Someone says \"Merci!\" to you. How do you reply?", answer: "De rien" },
+
+        { id: 21, type: "truefalse", question: "\"Salut\" is used in formal conversations.", answer: false },
+        { id: 22, type: "truefalse", question: "\"Mademoiselle\" is still commonly used in France.", answer: false },
+        { id: 23, type: "truefalse", question: "\"Ça va!\" means \"It's ok!\"", answer: true },
+        { id: 24, type: "truefalse", question: "French people always greet when they meet or take leave.", answer: true },
+        { id: 25, type: "truefalse", question: "\"À tout à l'heure\" means \"See you in a while\".", answer: true },
+
+        { id: 26, type: "fill", question: "Complete this formal conversation: Student: ___, Madame!", answer: "Bonjour" },
+        { id: 27, type: "fill", question: "Complete this formal conversation: Student: Ça va, ___.", answer: "merci" },
+        { id: 28, type: "fill", question: "Complete this formal conversation: Student: ___, Madame!", answer: "Au revoir" },
+        { id: 29, type: "fill", question: "Complete this informal conversation: Marie: ___ Paul!", answer: "Salut" },
+        { id: 30, type: "fill", question: "Complete this informal conversation: Marie: Oui, ___.", answer: "merci" },
+        { id: 31, type: "fill", question: "Complete this informal conversation: Marie: ___.", answer: "À bientôt" },
+        { id: 32, type: "fill", question: "Fill in: \"Bonjour, ___!\" (Good afternoon)", answer: "bon après-midi" },
+
+        { id: 33, type: "translate", question: "Write the French word for \"Good morning\".", answer: "Bonjour" },
+        { id: 34, type: "translate", question: "How do you say \"See you tomorrow\" in French?", answer: "À demain" },
+        { id: 35, type: "translate", question: "What does \"Merci beaucoup\" mean in English?", answer: "Thank you very much" },
+        { id: 36, type: "translate", question: "Translate to French: \"Nice to meet you\" (formal).", answer: "Enchanté" },
+        { id: 37, type: "translate", question: "What is the informal way to say \"Goodbye\"?", answer: "Salut" },
+        { id: 38, type: "translate", question: "How would you say \"Excuse me, Madame\" in French?", answer: "Excusez-moi, Madame" },
+        { id: 39, type: "translate", question: "What does \"À plus tard!\" mean?", answer: "See you later" },
+
+        {
+          id: 40, type: "match",
+          question: "Match the French expressions with their English meanings:",
+          pairs: [
+            { french: "Bonne chance", english: "Good luck" },
+            { french: "Enchanté", english: "Pleased to meet you" },
+            { french: "Entrez", english: "Come in" },
+            { french: "À demain", english: "See you tomorrow" },
+            { french: "De rien", english: "You're welcome" }
+          ]
+        },
+
+        {
+          id: 41, type: "grid",
+          question: "Find and select 8 French greetings hidden in the grid below:",
+          words: ["SALUT", "BONJOUR", "AUREVOIR", "MERCI", "ENCHANTE", "DERIEN", "CAVA", "ADEMAIN"],
+          // Medium-level grid: words scattered in various directions, some overlap, some random letters
+          grid: [
+            ['B','A','C','A','V','A','S','L'], // CAVA (col 2-5), BONJOUR (row 0, col 0-6, diagonal)
+            ['O','N','O','N','J','O','U','T'], // BONJOUR (row 1, col 1-6), SALUT (row 1, col 3-7)
+            ['N','J','U','R','E','V','O','I'], // AUREVOIR (row 2, col 2-7), ENCHANTE (col 4, row 2-9)
+            ['E','M','E','R','C','I','D','E'], // MERCI (row 3, col 3-7)
+            ['E','N','C','H','A','N','T','E'], // ENCHANTE (row 4, col 1-7)
+            ['D','E','R','I','E','N','A','B'], // DERIEN (row 5, col 1-6)
+            ['A','D','E','M','A','I','N','Y'], // ADEMAIN (row 6, col 1-7)
+            ['S','A','L','U','T','M','E','R'], // SALUT (row 7, col 1-5), MERCI (col 7, row 3-7)
+          ]
+        }
+      ];
+
+      let currentQuestions = [];
+      let currentIndex = 0;
+      let score = 0;
+      let answered = false;
+      let currentQuestionType = null;
+      // Store user answers for results
+      let userAnswers = [];
+
+      function shuffleArray(array) {
+        const newArray = [...array];
+        for (let i = newArray.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+        }
+        return newArray;
+      }
+
+      function getRandomQuestionsByType(type) {
+        const filtered = allQuestions.filter(q => q.type === type);
+        const shuffled = shuffleArray(filtered);
+        return shuffled.slice(0, Math.min(20, shuffled.length));
+      }
+
+      function getRandomMixedQuestions() {
+        const shuffled = shuffleArray(allQuestions);
+        return shuffled.slice(0, Math.min(20, shuffled.length));
+      }
+
+      function updateProgress() {
+        document.getElementById('current').textContent = currentIndex + 1;
+        document.getElementById('total').textContent = currentQuestions.length;
+        document.getElementById('score').textContent = score;
+        const progress = ((currentIndex + 1) / currentQuestions.length) * 100;
+        document.getElementById('progress-bar').style.width = `${progress}%`;
+      }
+
+      function showHome() {
+        document.getElementById('home-page').classList.remove('hidden');
+        document.getElementById('question-container').classList.add('hidden');
+        document.getElementById('results-screen').classList.add('hidden');
+      }
+
+      function showQuestions() {
+        document.getElementById('home-page').classList.add('hidden');
+        document.getElementById('question-container').classList.remove('hidden');
+        document.getElementById('results-screen').classList.add('hidden');
+        document.getElementById('prev-btn').disabled = true;
+        document.getElementById('prev-btn').classList.add('hidden');
+        document.getElementById('next-btn').disabled = false;
+        document.getElementById('next-btn').textContent = 'Next →';
+      }
+
+      // --- New Results Display Logic ---
+      function showResults() {
+        document.getElementById('home-page').classList.add('hidden');
+        document.getElementById('question-container').classList.add('hidden');
+        const resultsScreen = document.getElementById('results-screen');
+        resultsScreen.classList.remove('hidden');
+
+        document.getElementById('final-score').textContent = `${score}/${currentQuestions.length}`;
+
+        const percentage = (score / currentQuestions.length) * 100;
+        const messageEl = document.getElementById('result-message');
+        if (percentage >= 90) {
+          messageEl.textContent = "Wow! You're a French superstar! 🌟";
+        } else if (percentage >= 70) {
+          messageEl.textContent = "Excellent! Keep up the great work! 👍";
+        } else if (percentage >= 50) {
+          messageEl.textContent = "Good job! A little more practice and you'll be perfect! 💪";
+        } else {
+          messageEl.textContent = "Nice try! Keep learning and you'll get better! 📚";
+        }
+
+        // Build results table with clear correct/incorrect highlighting
+        let tableHTML = '<table class="results-table">';
+        tableHTML += '<thead><tr><th>Q#</th><th>Question</th><th>Your Answer</th><th>Correct Answer</th><th></th></tr></thead><tbody>';
+
+        currentQuestions.forEach((q, index) => {
+            const userAnswerObj = userAnswers.find(a => a.questionId === q.id);
+            let userAnswerDisplay = userAnswerObj ? userAnswerObj.display : "No Answer";
+            let correctAnswerDisplay = q.answer;
+            let isCorrect = userAnswerObj && userAnswerObj.isCorrect;
+
+            // Handle matching questions
+            if (q.type === "match") {
+                correctAnswerDisplay = q.pairs.map(p => `${p.french} → ${p.english}`).join(', ');
+                if (userAnswerObj && userAnswerObj.details) {
+                    userAnswerDisplay = userAnswerObj.details.map(d => {
+                        let badge = d.isCorrect ? '<span style="background:#c8e6c9;color:#2e7d32;border-radius:8px;padding:2px 8px;margin-right:4px;font-weight:bold;">✓</span>' : '<span style="background:#ffcdd2;color:#c62828;border-radius:8px;padding:2px 8px;margin-right:4px;font-weight:bold;">✗</span>';
+                        return `${badge}${d.french} → ${d.userAnswer}`;
+                    }).join('<br>');
+                }
+            }
+
+            let userAnswerClass = isCorrect ? 'user-answer correct-answer' : 'user-answer incorrect-answer';
+            let resultBadge = isCorrect
+                ? '<span style="background:#c8e6c9;color:#2e7d32;border-radius:8px;padding:2px 8px;font-weight:bold;">Correct</span>'
+                : '<span style="background:#ffcdd2;color:#c62828;border-radius:8px;padding:2px 8px;font-weight:bold;">Wrong</span>';
+
+            tableHTML += `<tr>
+                <td>${index + 1}</td>
+                <td>${q.question}</td>
+                <td class="${userAnswerClass}">${userAnswerDisplay}</td>
+                <td class="correct-answer-highlight">${correctAnswerDisplay}</td>
+                <td>${resultBadge}</td>
+            </tr>`;
+        });
+
+        tableHTML += '</tbody></table>';
+        document.getElementById('results-table-container').innerHTML = tableHTML;
+      }
+      // --- End New Results Display Logic ---
+
+      function createQuestionHTML(question, index) {
+        let html = `<div class="slide-enter-active" id="question-slide">`;
+        html += `<div class="text-center mb-4">`;
+        html += `<div class="badge bg-blue-100 text-blue-800">${question.type.toUpperCase()}</div>`;
+        html += `</div>`;
+        html += `<h2 class="text-xl font-semibold text-gray-800 mb-4 leading-relaxed">${question.question}</h2>`;
+
+        switch (question.type) {
+          case "mcq":
+            html += `<div class="space-y-3 mt-2">`;
+            question.options.forEach(option => {
+              html += `
+                <label class="flex items-center p-4 answer-option cursor-pointer">
+                  <span class="w-6 h-6 mr-3 flex-shrink-0 flex items-center justify-center border-2 border-gray-300 rounded-full"></span>
+                  <span class="text-gray-700 text-lg">${option}</span>
+                </label>
+              `;
+            });
+            html += `</div>`;
+            break;
+
+          case "truefalse":
+            html += `<div class="space-y-3 mt-2">`;
+            html += `
+              <label class="flex items-center p-4 answer-option cursor-pointer">
+                <span class="w-6 h-6 mr-3 flex-shrink-0 flex items-center justify-center border-2 border-gray-300 rounded-full"></span>
+                <span class="text-gray-700 text-lg">True</span>
+              </label>
+              <label class="flex items-center p-4 answer-option cursor-pointer">
+                <span class="w-6 h-6 mr-3 flex-shrink-0 flex items-center justify-center border-2 border-gray-300 rounded-full"></span>
+                <span class="text-gray-700 text-lg">False</span>
+              </label>
+            `;
+            html += `</div>`;
+            break;
+
+          case "fill":
+          case "translate":
+          case "situation":
+            html += `<div class="mt-2">`;
+            html += `<input type="text" id="text-answer-input" class="w-full text-lg" placeholder="Type your answer here..." autocomplete="off" />`;
+            html += `</div>`;
+            html += `<div class="mt-4 text-center">`;
+            html += `<button id="check-answer-btn" class="px-5 py-2 btn-secondary">Check My Answer</button>`;
+            html += `</div>`;
+            break;
+
+          case "match":
+            const englishOptions = shuffleArray(question.pairs.map(p => p.english));
+            html += `<div class="mt-2 space-y-4">`;
+            question.pairs.forEach((pair, i) => {
+              html += `<div class="flex flex-wrap items-center gap-3" data-french="${pair.french}">`; // Store french word
+              html += `<span class="font-medium text-lg w-36">${pair.french}</span>`;
+              html += `<select class="flex-1 min-w-44 p-2 text-lg match-select" data-index="${i}">`; // Store index
+              html += `<option value="">Choose...</option>`;
+              englishOptions.forEach(opt => {
+                html += `<option value="${opt}">${opt}</option>`;
+              });
+              html += `</select>`;
+              html += `</div>`;
+            });
+            html += `</div>`;
+            break;
+
+         case "grid":
+            html += `<div class="mt-2">`;
+            html += `<p class="text-sm text-gray-600 mb-3">Words to find: <span id="grid-words">${question.words.join(', ')}</span></p>`;
+            html += `<div class="mb-3" style="display: grid; grid-template-columns: repeat(8, 36px); gap: 4px;">`;
+            question.grid.forEach((row, rIdx) => {
+                row.forEach((letter, cIdx) => {
+                    html += `<div class="grid-letter p-2 text-center font-bold text-blue-600 text-lg" data-row="${rIdx}" data-col="${cIdx}" style="user-select:none;cursor:pointer;">${letter}</div>`;
+                });
+            });
+            html += `</div>`;
+            html += `<div class="mb-2"><span id="grid-message" class="text-green-700 font-bold"></span></div>`;
+            html += `<p class="text-xs text-gray-500">Click and drag to select a word. Highlighted words will be checked automatically.</p>`;
+            html += `</div>`;
+            break;
+        }
+        html += `</div>`;
+        return html;
+      }
+
+      function showQuestion(index) {
+        const container = document.getElementById('question-area');
+        const question = currentQuestions[index];
+
+        const oldSlide = document.getElementById('question-slide');
+        if (oldSlide) {
+            oldSlide.classList.remove('slide-enter-active');
+            oldSlide.classList.add('slide-leave', 'slide-leave-active');
+            setTimeout(() => {
+                container.innerHTML = createQuestionHTML(question, index);
+                attachQuestionListeners(question);
+                updateProgress();
+            }, 500);
+        } else {
+            container.innerHTML = createQuestionHTML(question, index);
+            attachQuestionListeners(question);
+            updateProgress();
+        }
+
+        answered = false;
+      }
+
+      function attachQuestionListeners(question) {
+        if (question.type === "mcq" || question.type === "truefalse") {
+            document.querySelectorAll('.answer-option').forEach(option => {
+                option.addEventListener('click', function () {
+                    if (answered) return;
+                    answered = true;
+
+                    const userAnswerElement = this.querySelector('span:last-child');
+                    let userAnswerText = userAnswerElement.textContent.trim();
+                    // For True/False, ensure boolean value is stored
+                    if (question.type === "truefalse") {
+                         userAnswerText = userAnswerText === "True";
+                    }
+
+                    const isCorrect = question.answer == userAnswerText; // Use == to compare boolean/string
+
+                    // Store answer
+                    userAnswers.push({
+                        questionId: question.id,
+                        display: userAnswerElement.textContent, // Text for display
+                        value: userAnswerText, // Actual value (boolean/string)
+                        isCorrect: isCorrect
+                    });
+
+                    document.querySelectorAll('.answer-option').forEach(opt => {
+                        opt.classList.remove('bg-blue-50', 'border-blue-500');
+                        opt.querySelector('span').classList.remove('border-blue-500', 'bg-blue-50');
+                        opt.querySelector('span').firstChild?.remove();
+                    });
+
+                    this.classList.add('bg-blue-50', 'border-blue-500');
+                    this.querySelector('span').classList.add('border-blue-500', 'bg-blue-50');
+                    const marker = document.createElement('span');
+                    marker.innerHTML = isCorrect ? '✓' : '✗';
+                    marker.className = 'text-lg font-bold';
+                    marker.style.color = isCorrect ? '#4caf50' : '#f44336';
+                    this.querySelector('span').appendChild(marker);
+
+                    if (isCorrect) {
+                        score++;
+                        updateProgress();
+                    }
+
+                    document.getElementById('next-btn').disabled = false;
+                });
+            });
+        }
+
+        if (question.type === "fill" || question.type === "translate" || question.type === "situation") {
+            const input = document.getElementById('text-answer-input');
+            const checkBtn = document.getElementById('check-answer-btn');
+            if (input && checkBtn) {
+                input.focus();
+
+                const checkAnswer = () => {
+                    if (answered || input.value.trim() === '') return;
+                    answered = true;
+                    const userAnswer = input.value.trim();
+
+                    // More lenient matching for text inputs
+                    const userAnswerLower = userAnswer.toLowerCase();
+                    const correctAnswerLower = question.answer.toLowerCase();
+                    const isCorrect = userAnswerLower.includes(correctAnswerLower) || correctAnswerLower.includes(userAnswerLower);
+
+                    // Store answer
+                    userAnswers.push({
+                        questionId: question.id,
+                        display: userAnswer,
+                        value: userAnswer,
+                        isCorrect: isCorrect
+                    });
+
+                    input.disabled = true;
+                    input.className = isCorrect
+                        ? 'w-full p-4 text-lg border-4 border-green-500 rounded-xl bg-green-50 text-green-800'
+                        : 'w-full p-4 text-lg border-4 border-red-500 rounded-xl bg-red-50 text-red-800';
+
+                    input.value += isCorrect ? ' ✓' : ` ✗ (e.g., ${question.answer})`;
+
+                    if (isCorrect) {
+                        score++;
+                        updateProgress();
+                    }
+
+                    document.getElementById('next-btn').disabled = false;
+                    checkBtn.remove();
+                };
+
+                checkBtn.addEventListener('click', checkAnswer);
+                input.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') checkAnswer();
+                });
+            }
+        }
+
+        if (question.type === "match") {
+            // Matching answers are checked and stored on "Next" click
+        }
+
+        if (question.type === "grid") {
+            // Word search selection logic
+            let selecting = false;
+            let startCell = null;
+            let selectedCells = [];
+            let foundWords = [];
+            const gridLetters = document.querySelectorAll('.grid-letter');
+            const wordsToFind = question.words;
+            const gridMessage = document.getElementById('grid-message');
+            const gridWordsEl = document.getElementById('grid-words');
+
+            function clearSelection() {
+                gridLetters.forEach(cell => cell.classList.remove('bg-yellow-200', 'bg-green-200', 'bg-red-200'));
+                selectedCells = [];
+            }
+
+            function getWordFromSelection(cells) {
+                return cells.map(cell => cell.textContent).join('').toUpperCase();
+            }
+
+            function highlightCells(cells, colorClass) {
+                cells.forEach(cell => {
+                    cell.classList.remove('bg-yellow-200', 'bg-green-200', 'bg-red-200');
+                    cell.classList.add(colorClass);
+                });
+            }
+
+            function updateWordsList() {
+                const left = wordsToFind.filter(w => !foundWords.includes(w));
+                gridWordsEl.innerHTML = left.join(', ');
+            }
+
+            gridLetters.forEach(cell => {
+                cell.addEventListener('mousedown', e => {
+                    if (answered) return;
+                    selecting = true;
+                    clearSelection();
+                    startCell = cell;
+                    selectedCells = [cell];
+                    cell.classList.add('bg-yellow-200');
+                });
+                cell.addEventListener('mouseenter', e => {
+                    if (!selecting || answered) return;
+                    if (!startCell) return;
+                    clearSelection();
+                    const startRow = parseInt(startCell.getAttribute('data-row'));
+                    const startCol = parseInt(startCell.getAttribute('data-col'));
+                    const endRow = parseInt(cell.getAttribute('data-row'));
+                    const endCol = parseInt(cell.getAttribute('data-col'));
+                    // Only allow straight lines (horizontal, vertical, diagonal)
+                    let cells = [];
+                    if (startRow === endRow) {
+                        // Horizontal
+                        const minCol = Math.min(startCol, endCol);
+                        const maxCol = Math.max(startCol, endCol);
+                        for (let c = minCol; c <= maxCol; c++) {
+                            cells.push(document.querySelector(`.grid-letter[data-row='${startRow}'][data-col='${c}']`));
+                        }
+                    } else if (startCol === endCol) {
+                        // Vertical
+                        const minRow = Math.min(startRow, endRow);
+                        const maxRow = Math.max(startRow, endRow);
+                        for (let r = minRow; r <= maxRow; r++) {
+                            cells.push(document.querySelector(`.grid-letter[data-row='${r}'][data-col='${startCol}']`));
+                        }
+                    } else if (Math.abs(startRow - endRow) === Math.abs(startCol - endCol)) {
+                        // Diagonal
+                        const dr = endRow > startRow ? 1 : -1;
+                        const dc = endCol > startCol ? 1 : -1;
+                        for (let i = 0; i <= Math.abs(endRow - startRow); i++) {
+                            cells.push(document.querySelector(`.grid-letter[data-row='${startRow + i * dr}'][data-col='${startCol + i * dc}']`));
+                        }
+                    }
+                    selectedCells = cells;
+                    highlightCells(cells, 'bg-yellow-200');
+                });
+                cell.addEventListener('mouseup', e => {
+                    if (!selecting || answered) return;
+                    selecting = false;
+                    if (selectedCells.length < 2) {
+                        clearSelection();
+                        return;
+                    }
+                    const selectedWord = getWordFromSelection(selectedCells);
+                    if (wordsToFind.includes(selectedWord) && !foundWords.includes(selectedWord)) {
+                        highlightCells(selectedCells, 'bg-green-200');
+                        foundWords.push(selectedWord);
+                        gridMessage.textContent = `Found: ${selectedWord}`;
+                        updateWordsList();
+                        if (foundWords.length === wordsToFind.length) {
+                            gridMessage.textContent = 'All words found! 🎉';
+                            answered = true;
+                            userAnswers.push({
+                                questionId: question.id,
+                                display: `Found all words: ${foundWords.join(', ')}`,
+                                value: foundWords,
+                                isCorrect: true
+                            });
+                            document.getElementById('next-btn').disabled = false;
+                        }
+                    } else {
+                        highlightCells(selectedCells, 'bg-red-200');
+                        gridMessage.textContent = `Not a valid word!`;
+                        setTimeout(clearSelection, 700);
+                    }
+                });
+            });
+        }
+      }
+
+      function initExam(questionType) {
+        currentQuestionType = questionType;
+        currentQuestions = getRandomQuestionsByType(questionType);
+        if (currentQuestions.length === 0) {
+            alert("No questions available for this type.");
+            return;
+        }
+        currentIndex = 0;
+        score = 0;
+        answered = false;
+        userAnswers = []; // Reset answers
+        showQuestions();
+        showQuestion(currentIndex);
+      }
+
+      function initMixedExam() {
+        currentQuestionType = "mixed";
+        currentQuestions = getRandomMixedQuestions();
+        if (currentQuestions.length === 0) {
+            alert("No questions available.");
+            return;
+        }
+        currentIndex = 0;
+        score = 0;
+        answered = false;
+        userAnswers = []; // Reset answers
+        showQuestions();
+        showQuestion(currentIndex);
+      }
+
+      document.getElementById('next-btn').addEventListener('click', function (e) {
+        // Handle matching question scoring and storing if needed
+        const currentQ = currentQuestions[currentIndex];
+        if (currentQ.type === "match" && !answered) {
+            if (answered) return;
+            answered = true;
+
+            let correctCount = 0;
+            const matchDetails = []; // To store details for results
+
+            document.querySelectorAll('[data-french]').forEach(item => {
+                const frenchWord = item.getAttribute('data-french');
+                const select = item.querySelector('.match-select');
+                const userAnswer = select.value;
+                const correctPair = currentQ.pairs.find(p => p.french === frenchWord);
+                const correctAnswer = correctPair ? correctPair.english : "";
+                const isCorrect = userAnswer === correctAnswer;
+
+                matchDetails.push({
+                    french: frenchWord,
+                    userAnswer: userAnswer || "(No Answer)",
+                    correctAnswer: correctAnswer,
+                    isCorrect: isCorrect
+                });
+
+                select.disabled = true;
+                if (isCorrect) {
+                    select.classList.add('border-green-500', 'bg-green-50');
+                    correctCount++;
+                } else {
+                    select.classList.add('border-red-500', 'bg-red-50');
+                }
+            });
+
+            // Store the composite matching answer
+            userAnswers.push({
+                questionId: currentQ.id,
+                display: `Matched ${correctCount}/${currentQ.pairs.length}`,
+                details: matchDetails, // Detailed breakdown
+                isCorrect: correctCount === currentQ.pairs.length // Full marks only if all correct
+            });
+
+            score += correctCount;
+            updateProgress();
+
+            document.getElementById('next-btn').disabled = false;
+        }
+
+        // Handle grid question storing if needed (if user advanced manually before timeout)
+        if (currentQ.type === "grid" && !answered) {
+             answered = true;
+             // Ensure grid answer is stored if not already (e.g., user clicked Next quickly)
+             if (!userAnswers.some(a => a.questionId === currentQ.id)) {
+                 userAnswers.push({
+                     questionId: currentQ.id,
+                     display: "Completed (no scoring)",
+                     value: "completed",
+                     isCorrect: true
+                 });
+             }
+        }
+
+        if (currentIndex < currentQuestions.length - 1) {
+          currentIndex++;
+          showQuestion(currentIndex);
+          document.getElementById('prev-btn').disabled = false;
+          document.getElementById('prev-btn').classList.remove('hidden');
+          if (currentIndex === currentQuestions.length - 1) {
+            document.getElementById('next-btn').textContent = 'Finish Practice!';
+          }
+        } else {
+          showResults(); // Show the new detailed results screen
+        }
+      });
+
+      document.getElementById('prev-btn').addEventListener('click', function () {
+        if (currentIndex > 0) {
+          currentIndex--;
+          showQuestion(currentIndex);
+          if (currentIndex === 0) {
+            document.getElementById('prev-btn').disabled = true;
+            document.getElementById('prev-btn').classList.add('hidden');
+          }
+          if (document.getElementById('next-btn').textContent === 'Finish Practice!') {
+            document.getElementById('next-btn').textContent = 'Next →';
+          }
+          document.getElementById('next-btn').disabled = false;
+        }
+      });
+
+      document.getElementById('mcq-btn').addEventListener('click', () => initExam('mcq'));
+      document.getElementById('fill-blanks-btn').addEventListener('click', () => initExam('fill'));
+      document.getElementById('translation-btn').addEventListener('click', () => initExam('translate'));
+      document.getElementById('situation-btn').addEventListener('click', () => initExam('situation'));
+      document.getElementById('true-false-btn').addEventListener('click', () => initExam('truefalse'));
+      document.getElementById('matching-btn').addEventListener('click', () => initExam('match'));
+      document.getElementById('grid-btn').addEventListener('click', () => initExam('grid'));
+
+      document.getElementById('start-over-home-btn').addEventListener('click', initMixedExam);
+      document.getElementById('restart-btn').addEventListener('click', function() {
+          if (currentQuestionType === "mixed") {
+              initMixedExam();
+          } else if (currentQuestionType) {
+              initExam(currentQuestionType);
+          } else {
+              showHome();
+          }
+      });
+
+      document.getElementById('home-fab').addEventListener('click', showHome);
+
+    });
+  </script>
+</body>
+</html>
